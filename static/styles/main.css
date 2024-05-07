@@ -1,0 +1,57 @@
+@font-face {
+
+  font-family: "open-sans";
+  src:
+    local("open-sans"),
+    url("/static/fonts/static/OpenSans-Regular.ttf") format("truetype")
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 12px;
+}
+
+body {
+    background-color: #fff;
+    background-color: #fff;
+    opacity: 1;
+    background-image:  repeating-radial-gradient( circle at 0 0, transparent 0, #fff 40px ), repeating-linear-gradient( #85bdd155, #85bdd1 );
+}
+
+.main-container {
+    width: max-content;
+    margin: 0 auto;
+    padding: 20px 0;
+    background-color: #fff;
+    padding: 20px;
+}
+
+form {
+    margin: 20px 0;
+}
+
+button {
+    border: 0px;
+    border-radius: 10px;
+    padding: 5px 10px;
+    background-color: #85bdd1;
+    margin: 0 10px;
+    cursor: pointer;
+    color: #fff;
+}
+
+#adm {
+    float: right;
+}
+
+.header-container {
+    height: 30px;
+}
+
+#hello {
+    float: left;
+}

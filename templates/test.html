@@ -1,0 +1,93 @@
+<html>
+<head>
+   <style>
+      table, th, td {
+         border: 1px solid black;
+         border-collapse: collapse;
+      }
+      td, th {
+         padding: 12px;
+      }
+   </style>
+</head>
+<body>
+   <h3>Привет, <span id="username"></span>!</h3>
+   <div>Тут лежит бд и стата</div>
+   <div id="container1"></div>
+   <form>
+   <label for="tguser">Отчет по пользователю:</label><br>
+   <input type="text" id="tguser" name="tguser"><button id="tick">тык</button>
+   </form>
+   <div id="container2"></div>
+
+   <script>
+      var baseStr64 = "{{b64string}}";
+      var jsonInput = {{variable|tojson|safe}};
+      document.getElementById("username").innerHTML = "{{username}}".toString();
+      convert("container1",jsonInput,"bd");
+
+      var data
+
+
+      document.getElementById("tick").onclick = send()
+
+   // img.setAttribute('src', "data:image/png;base64, " + baseStr64);
+
+      async function send(){
+
+         const username = document.getElementById("tguser").value;
+
+         const response = await fetch("/tguser", {
+            method: "POST",
+            headers: { "Accept": "application/json", "Content-Type": "application/json" },
+            body: JSON.stringify({name: username})
+         });
+         if (response.ok) {
+            data = await response.json();
+            convert("container2", data, "report");
+            return
+         }
+         else
+            console.log(response);
+         }
+
+      document.getElementById("tick").addEventListener("click", send);
+
+
+
+
+   </script>
+
+</body>
+</html>
+
+     function convert(container_str, jsonInput, tablename) {
+
+         var jsonData = JSON.parse(jsonInput);
+         let container = document.getElementById(container_str);
+         let table = document.createElement(tablename);
+         let cols = Object.keys(jsonData[0]);
+
+         let thead = document.createElement("thead");
+         let tr = document.createElement("tr");
+
+         cols.forEach((item) => {
+            let th = document.createElement("th");
+            th.innerText = item;
+            tr.appendChild(th);
+         });
+         thead.appendChild(tr);
+         table.append(tr)
+
+         jsonData.forEach((item) => {
+            let tr = document.createElement("tr");
+            let vals = Object.values(item);
+            vals.forEach((elem) => {
+               let td = document.createElement("td");
+               td.innerText = elem;
+               tr.appendChild(td);
+            });
+            table.appendChild(tr);
+         });
+         container.appendChild(table)
+      }

@@ -1,0 +1,150 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', path='styles/main.css') }}">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body>
+<div class="main-container">
+    <h3>Добрый день, <span id="username"></span>!</h3>
+    <div class="statistic-container">
+        <div class="description">Здесь собрана статистика по тестам в боте</div>
+        <br>
+        <hr>
+        <form>
+            <label for="publication">Отправить объявление в бота:</label><br><br>
+            <input type="textarea" placeholder="текст сообщения" id="publication" name="publication">
+            <button id="publish">Send</button>
+        </form>
+        <div id="container0"></div>
+        <hr>
+        <br>
+
+    </div>
+
+    <div>База данных:</div>
+    <br>
+    <div id="container1"></div>
+    <br>
+    <hr>
+    <form>
+        <label for="tguser">Отчет по пользователю:</label><br><br>
+        <input type="text" placeholder="введите username" id="tguser" name="tguser">
+        <button id="tick">Show</button>
+        <button id="toggleimg">Показать/скрыть статистику</button>
+    </form>
+
+    <div id="container2"></div>
+    <br>
+
+
+    <p align="center">
+        <img id="img" border="1px" src="" style="visibility:hidden">
+    </p>
+
+
+    <script>
+        var baseStr64 = "{{b64string}}";
+        var jsonInput = {{variable|tojson|safe}};
+        document.getElementById("username").innerHTML = "{{username}}".toString();
+        convert("container1", jsonInput, "bd");
+        img.setAttribute('src', "data:image/png;base64, " + baseStr64);
+
+        document.getElementById("tick").addEventListener("click", function (e) {
+                document.getElementById("container2").innerHTML = "";
+                e.preventDefault();
+                send();
+            }
+        );
+
+        document.getElementById("publish").addEventListener("click", function (e) {
+                document.getElementById("container0").innerHTML = "";
+                e.preventDefault();
+                send_publication();
+            }
+        );
+
+        document.getElementById("toggleimg").addEventListener("click", function (e) {
+                e.preventDefault();
+                if (document.getElementById("img").style.visibility == "hidden") {
+                    setImageVisible("img", true);
+
+                } else {
+                    setImageVisible("img", false);
+                }
+            }
+        );
+
+
+        function setImageVisible(id, visible) {
+            var img = document.getElementById(id);
+            img.style.visibility = (visible ? 'visible' : 'hidden');
+        }
+
+        function convert(container_str, jsonInput, tablename) {
+
+            var jsonData = JSON.parse(jsonInput);
+            let container = document.getElementById(container_str);
+            let table = document.createElement(tablename);
+            let cols = Object.keys(jsonData[0]);
+
+            let thead = document.createElement("thead");
+            let tr = document.createElement("tr");
+
+            cols.forEach((item) => {
+                let th = document.createElement("th");
+                th.innerText = item;
+                tr.appendChild(th);
+            });
+            thead.appendChild(tr);
+            table.append(tr)
+
+            jsonData.forEach((item) => {
+                let tr = document.createElement("tr");
+                let vals = Object.values(item);
+                vals.forEach((elem) => {
+                    let td = document.createElement("td");
+                    td.innerText = elem;
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
+            container.appendChild(table)
+        }
+
+
+        async function send() {
+
+            const username = document.getElementById("tguser").value;
+
+            const response = await fetch("/tguser", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({name: username})
+            });
+            const data = await response.json();
+            convert("container2", data, "report");
+        }
+
+        async function send_publication() {
+
+            const text = document.getElementById("publication").value;
+
+            const response = await fetch("/publication", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({publication: text})
+            });
+            const data = await response.json();
+            let data_json = JSON.parse(data);
+            let result_response = "<p style='color: #077158'>Публикация успешно отправлена</p>"
+            if (data_json[0]["response"] !== "Success") {
+                result_response = "<p style='color: red'>При отправке публикации произошла ошибка</p>"
+            }
+            document.getElementById("container0").innerHTML = result_response;
+        }
+
+    </script>
+</div>
+
+</body>
+</html>
